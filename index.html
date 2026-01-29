@@ -1,165 +1,138 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>cTrader Auto Lot Size Calculator</title>
-  <style>
-    :root{
-      --bg:#0b1220; --panel:#0f1b33; --text:#eaf0ff; --muted:#a9b7d6;
-      --stroke:rgba(255,255,255,.10); --accent:#6ee7ff; --accent2:#a78bfa;
-      --good:#34d399; --bad:#fb7185; --shadow: 0 12px 40px rgba(0,0,0,.35);
-      --radius: 18px;
-    }
-    [data-theme="light"]{
-      --bg:#f5f7ff; --panel:#ffffff; --text:#0b1220; --muted:#4b5875;
-      --stroke:rgba(11,18,32,.10); --shadow: 0 10px 30px rgba(11,18,32,.12);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background:
-        radial-gradient(1200px 700px at 20% 0%, rgba(110,231,255,.12), transparent 60%),
-        radial-gradient(900px 600px at 90% 10%, rgba(167,139,250,.10), transparent 60%),
-        var(--bg);
-      color:var(--text);
-    }
-    .wrap{max-width:1100px; margin:20px auto; padding:14px;}
-    .topbar{
-      display:flex; gap:12px; align-items:center; justify-content:space-between;
-      padding:14px 16px; border:1px solid var(--stroke); border-radius:var(--radius);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      box-shadow: var(--shadow);
-    }
-    .brand{display:flex; gap:12px; align-items:center;}
-    .logo{
-      width:40px; height:40px; border-radius:14px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 10px 30px rgba(110,231,255,.20);
-    }
-    h1{font-size:16px; margin:0;}
-    .sub{font-size:12px; color:var(--muted); margin-top:2px;}
-    .actions{display:flex; gap:10px; align-items:center;}
-    .btn{
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:14px;
-      cursor:pointer;
-      transition:.2s transform, .2s opacity;
-      user-select:none;
-    }
-    .btn:hover{transform: translateY(-1px); opacity:.95;}
-    .grid{
-      display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap:14px;
-      margin-top:14px;
-    }
-    @media (max-width: 940px){ .grid{grid-template-columns:1fr;} }
-    .card{
-      border:1px solid var(--stroke);
-      border-radius:var(--radius);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      box-shadow: var(--shadow);
-      padding:14px;
-    }
-    .card h2{margin:0 0 10px 0; font-size:13px; color:var(--muted); font-weight:600; letter-spacing:.3px;}
-    .row{display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
-    @media (max-width: 540px){ .row{grid-template-columns:1fr;} }
-    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 6px;}
-    input, select{
-      width:100%; padding:12px 12px;
-      border-radius:14px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.05);
-      color: var(--text);
-      outline:none;
-    }
-    [data-theme="light"] input,[data-theme="light"] select{
-      background: rgba(11,18,32,.03);
-    }
-    .seg{
-      display:flex; gap:8px; margin-top:8px;
-      padding:6px; border:1px solid var(--stroke); border-radius:16px;
-      background: rgba(255,255,255,.04);
-    }
-    .seg button{
-      flex:1; padding:10px 12px; border-radius:14px;
-      border:1px solid transparent;
-      background: transparent; color: var(--muted);
-      cursor:pointer;
-    }
-    .seg button.active{
-      background: linear-gradient(135deg, rgba(110,231,255,.18), rgba(167,139,250,.16));
-      border-color: rgba(255,255,255,.10);
-      color: var(--text);
-    }
-    .hint{font-size:12px; color:var(--muted); margin-top:10px; line-height:1.35;}
-    .kpis{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-    .kpi{
-      border:1px solid var(--stroke);
-      border-radius:16px;
-      padding:14px 14px;
-      background: rgba(255,255,255,.04);
-    }
-    .kpi .t{font-size:12px; color:var(--muted);}
-    .kpi .v{font-size:18px; margin-top:6px; font-weight:700;}
-    .kpi .s{font-size:12px; margin-top:6px; color:var(--muted);}
-    .pill{
-      padding:8px 10px; border-radius:999px; font-size:12px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.04);
-      color:var(--muted);
-      display:inline-flex; align-items:center; gap:8px;
-    }
-    .dot{width:8px;height:8px;border-radius:999px;background:var(--muted);}
-    .dot.ok{background:var(--good);}
-    .dot.bad{background:var(--bad);}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Compact Pro Lot + RR</title>
+<style>
+  :root{
+    --bg:#050914; --panel:rgba(255,255,255,.06); --panel2:rgba(255,255,255,.03);
+    --stroke:rgba(255,255,255,.12); --text:#eaf0ff; --muted:#9fb0d8;
+    --a:#2dd4bf; --b:#60a5fa; --ok:#34d399; --bad:#fb7185;
+    --r:18px; --sh:0 18px 60px rgba(0,0,0,.55);
+  }
+  [data-theme="light"]{
+    --bg:#f5f7ff; --panel:#fff; --panel2:#fff; --stroke:rgba(11,18,32,.10);
+    --text:#0b1220; --muted:#4b5875; --sh:0 14px 44px rgba(11,18,32,.12);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    background:
+      radial-gradient(1200px 700px at 15% 0%, rgba(45,212,191,.10), transparent 55%),
+      radial-gradient(900px 600px at 85% 10%, rgba(96,165,250,.10), transparent 55%),
+      var(--bg);
+    color:var(--text);
+  }
+  .wrap{max-width:980px;margin:14px auto;padding:12px;}
+  .panel{
+    border:1px solid var(--stroke); border-radius:var(--r);
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    box-shadow:var(--sh); overflow:hidden;
+  }
+  .top{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+  .logo{width:34px;height:34px;border-radius:14px;background:linear-gradient(135deg,var(--a),var(--b));}
+  .ttl{font-weight:900;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sub{font-size:11px;color:var(--muted);margin-top:1px;}
+  .btn{border:1px solid var(--stroke); background:rgba(255,255,255,.06); color:var(--text);
+       padding:8px 10px;border-radius:14px; cursor:pointer; font-size:12px;}
+  .strip{
+    display:flex; gap:8px; flex-wrap:wrap; padding:10px 12px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:7px 10px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(255,255,255,.04);
+    color:var(--muted); font-size:12px;
+  }
+  .dot{width:8px;height:8px;border-radius:999px;background:var(--muted);}
+  .dot.ok{background:var(--ok);} .dot.bad{background:var(--bad);}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px;}
+  @media(max-width:860px){.grid{grid-template-columns:1fr;}}
+  .card{
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(255,255,255,.03);
+    border-radius:16px; padding:12px;
+  }
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media(max-width:520px){.row{grid-template-columns:1fr;}}
+  label{display:block;font-size:11px;color:var(--muted); margin:8px 0 6px;}
+  input,select{
+    width:100%; padding:10px 10px; border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.16);
+    color:var(--text); outline:none; font-size:13px;
+  }
+  [data-theme="light"] input,[data-theme="light"] select{background:rgba(11,18,32,.03);}
+  .seg{display:flex; gap:8px; padding:6px; border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.03);}
+  .seg button{flex:1; padding:9px 10px; border-radius:14px; border:1px solid transparent; background:transparent; color:var(--muted); cursor:pointer; font-size:12px;}
+  .seg button.active{background:linear-gradient(135deg,rgba(45,212,191,.18),rgba(96,165,250,.16)); border-color:rgba(255,255,255,.10); color:var(--text);}
+  .kpis{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .kpi{border:1px solid rgba(255,255,255,.10); border-radius:16px; padding:12px; background:rgba(255,255,255,.03);}
+  .kpi .t{font-size:11px;color:var(--muted);}
+  .kpi .v{font-size:16px;font-weight:900;margin-top:6px;}
+  .big{grid-column:1/-1;background:linear-gradient(135deg,rgba(45,212,191,.12),rgba(96,165,250,.10));}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+  .hint{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.35;}
+</style>
 </head>
 
 <body data-theme="dark">
-  <div class="wrap">
-    <div class="topbar">
+<div class="wrap">
+  <div class="panel">
+    <div class="top">
       <div class="brand">
         <div class="logo"></div>
-        <div>
-          <h1>Auto Lot Size Calculator (cTrader)</h1>
-          <div class="sub">Auto-fills from chart symbol + account info (WV SDK)</div>
+        <div style="min-width:0">
+          <div class="ttl">Compact Pro Lot + RR</div>
+          <div class="sub">Auto-fill from chart symbol + live bid/ask</div>
         </div>
       </div>
-      <div class="actions">
-        <button class="btn" id="themeBtn">Toggle theme</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn" id="themeBtn">Theme</button>
         <button class="btn" id="copyBtn">Copy lots</button>
       </div>
     </div>
 
-    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-      <span class="pill"><span id="connDot" class="dot"></span><span id="connTxt">Not connected</span></span>
-      <span class="pill"><span class="mono">symbol</span>: <span id="qsSymbol">—</span></span>
-      <span class="pill"><span class="mono">placement</span>: <span id="qsPlacement">—</span></span>
-      <span class="pill"><span class="mono">platform</span>: <span id="qsPlatform">—</span></span>
+    <div class="strip">
+      <span class="pill"><span id="connDot" class="dot bad"></span><span id="connTxt">Not connected</span></span>
+      <span class="pill"><span class="mono">symbol</span>: <span id="barSymbol">—</span></span>
+      <span class="pill"><span class="mono">bid</span>: <span id="barBid">—</span></span>
+      <span class="pill"><span class="mono">ask</span>: <span id="barAsk">—</span></span>
+      <span class="pill"><span class="mono">mid</span>: <span id="barMid">—</span></span>
+      <span class="pill"><span class="mono">spread</span>: <span id="barSpr">—</span></span>
     </div>
 
     <div class="grid">
-      <!-- Inputs -->
       <div class="card">
-        <h2>Inputs (auto-fill supported)</h2>
+        <div class="row">
+          <div>
+            <label>Symbol (auto from chart)</label>
+            <input id="symbol" value="EURUSD" />
+          </div>
+          <div>
+            <label>Direction</label>
+            <div class="seg">
+              <button id="dirBuy" class="active" type="button">BUY</button>
+              <button id="dirSell" type="button">SELL</button>
+            </div>
+          </div>
+        </div>
 
         <div class="row">
           <div>
-            <label>Account currency</label>
-            <input id="acctCcy" value="USD" />
-            <div class="hint">Auto-filled from <span class="mono">getAccountInformation</span> (when available).</div>
+            <label>Balance</label>
+            <input id="balance" type="number" step="0.01" value="10000" />
           </div>
           <div>
-            <label>Account balance</label>
-            <input id="balance" type="number" step="0.01" value="10000" />
-            <div class="hint">Auto-filled from account info.</div>
+            <label>Account currency</label>
+            <input id="acctCcy" value="USD" />
           </div>
         </div>
 
@@ -182,27 +155,23 @@
 
         <div class="row">
           <div>
-            <label>Symbol</label>
-            <input id="symbol" value="EURUSD" />
-            <div class="hint">Auto-filled from URL query string <span class="mono">?symbol=</span>. :contentReference[oaicite:3]{index=3}</div>
+            <label>RR ratio (TP = SL × RR)</label>
+            <input id="rr" type="number" step="0.1" value="2" />
           </div>
           <div>
-            <label>Price (live)</label>
-            <input id="price" type="number" step="0.00001" value="1.08000" />
-            <div class="hint">Auto-filled from quote subscription (mid price).</div>
+            <label>Entry (auto mid)</label>
+            <input id="entry" type="number" step="0.00001" value="1.08000" />
           </div>
         </div>
 
         <div class="row">
           <div>
-            <label>Pip size</label>
+            <label>Pip size (auto best-effort)</label>
             <input id="pipSize" type="number" step="0.00001" value="0.0001" />
-            <div class="hint">Auto-filled from symbol info (best-effort).</div>
           </div>
           <div>
-            <label>Contract size (units per 1 lot)</label>
+            <label>Contract size (units/lot)</label>
             <input id="contractSize" type="number" step="1" value="100000" />
-            <div class="hint">Auto-filled from symbol info (best-effort).</div>
           </div>
         </div>
 
@@ -210,346 +179,313 @@
           <div>
             <label>Volume step (lots)</label>
             <input id="volStep" type="number" step="0.01" value="0.01" />
-            <div class="hint">Auto-filled from symbol info (best-effort).</div>
           </div>
           <div>
-            <label>Conversion rate to account currency</label>
+            <label>Conversion rate → account ccy</label>
             <input id="convRate" type="number" step="0.0001" value="1" />
-            <div class="hint">Keep 1 for same-currency quotes. (You can upgrade to auto later.)</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label>Leverage (optional)</label>
-            <input id="leverage" type="number" step="1" value="100" />
-          </div>
-          <div>
-            <label>Margin rate (optional)</label>
-            <input id="marginRate" type="number" step="0.01" value="1" />
           </div>
         </div>
 
         <div class="hint">
-          How symbol auto-fill works: cTrader adds query params like <span class="mono">theme</span>, <span class="mono">symbol</span>, <span class="mono">placement</span>, <span class="mono">platform</span> when launching WV plugins. :contentReference[oaicite:4]{index=4}
+          Symbol/theme are taken from cTrader query params when opened from chart. :contentReference[oaicite:2]{index=2}
+          Live prices + account/symbol info use the WebView plugin SDK. :contentReference[oaicite:3]{index=3}
         </div>
       </div>
 
-      <!-- Outputs -->
       <div class="card">
-        <h2>Results</h2>
-
         <div class="kpis">
-          <div class="kpi">
+          <div class="kpi big">
             <div class="t">Recommended lots</div>
             <div class="v" id="outLots">—</div>
-            <div class="s">rounded to volume step</div>
           </div>
 
           <div class="kpi">
-            <div class="t">Units (approx)</div>
+            <div class="t">Units</div>
             <div class="v" id="outUnits">—</div>
-            <div class="s">contractSize × lots</div>
           </div>
 
           <div class="kpi">
-            <div class="t">Pip value (per 1 lot)</div>
+            <div class="t">Pip value / 1 lot</div>
             <div class="v" id="outPipPerLot">—</div>
-            <div class="s">in account currency (× conversionRate)</div>
           </div>
 
           <div class="kpi">
             <div class="t">Total risk</div>
             <div class="v" id="outRisk">—</div>
-            <div class="s" id="outRiskMode">—</div>
           </div>
 
           <div class="kpi">
-            <div class="t">Risk per pip (your size)</div>
+            <div class="t">SL price</div>
+            <div class="v" id="outSL">—</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">TP price</div>
+            <div class="v" id="outTP">—</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">TP pips</div>
+            <div class="v" id="outTPpips">—</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">Risk / pip</div>
             <div class="v" id="outRiskPerPip">—</div>
-            <div class="s">risk / stopLossPips</div>
           </div>
-
-          <div class="kpi">
-            <div class="t">Est. required margin</div>
-            <div class="v" id="outMargin">—</div>
-            <div class="s">approx only</div>
-          </div>
-        </div>
-
-        <div class="hint" style="margin-top:14px;">
-          Auto-fill uses WV plugin SDK handshake + requests (account info, symbol info, quotes). :contentReference[oaicite:5]{index=5}
         </div>
       </div>
     </div>
+
   </div>
+</div>
 
-  <script type="module">
-    // --- SDK imports (CDN style, like cTrader official example) ---
-    import { createClientAdapter } from "https://esm.sh/@spotware-web-team/sdk-external-api@0.0.5";
-    import {
-      handleConfirmEvent,
-      registerEvent,
-      getAccountInformation,
-      getLightSymbolList,
-      getSymbol,
-      subscribeQuotes,
-      quoteEvent,
-    } from "https://esm.sh/@spotware-web-team/sdk@0.0.9";
-    import { take, tap, catchError } from "https://esm.sh/rxjs@7.8.2";
-    import { createLogger } from "https://esm.sh/@veksa/logger@1.0.6";
+<script type="module">
+  // ===== Imports (CDN style). If cTrader updates versions, change only these lines. =====
+  import { createClientAdapter } from "https://esm.sh/@spotware-web-team/sdk-external-api@0.0.5";
+  import {
+    handleConfirmEvent,
+    registerEvent,
+    getAccountInformation,
+    getLightSymbolList,
+    getSymbol,
+    subscribeQuotes,
+    quoteEvent,
+  } from "https://esm.sh/@spotware-web-team/sdk@0.0.9";
+  import { take, tap } from "https://esm.sh/rxjs@7.8.2";
 
-    const $ = (id) => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
-    // ---------- UI helpers ----------
-    function isFiniteNumber(x){ return Number.isFinite(x) && !Number.isNaN(x); }
-    function roundToStep(value, step){
-      if (!isFiniteNumber(value) || !isFiniteNumber(step) || step <= 0) return value;
-      return Math.floor(value / step) * step;
-    }
-    function fmt(n, digits=2){
-      if (!isFiniteNumber(n)) return "—";
-      const abs = Math.abs(n);
-      const d = abs >= 1000 ? 0 : digits;
-      return n.toLocaleString(undefined, {maximumFractionDigits:d});
-    }
-    function setConnectedUI(ok){
-      $("connDot").className = "dot " + (ok ? "ok" : "bad");
-      $("connTxt").textContent = ok ? "Connected to cTrader host" : "Not connected";
-    }
+  // ----- state -----
+  let riskMode = "pct";     // pct | amt
+  let dir = "buy";          // buy | sell
+  let currentSymbolId = null;
+  let lastBid = null, lastAsk = null;
 
-    // ---------- calculator ----------
-    let riskMode = "pct"; // pct | amt
-    function setRiskMode(mode){
-      riskMode = mode;
-      $("modePct").classList.toggle("active", mode === "pct");
-      $("modeAmt").classList.toggle("active", mode === "amt");
-      $("riskLabel").textContent = mode === "pct" ? "Risk (%)" : "Risk ($)";
-      $("outRiskMode").textContent = mode === "pct" ? "balance × risk%" : "fixed amount";
-      calc();
-    }
+  // ----- helpers -----
+  const isNum = (x) => Number.isFinite(x) && !Number.isNaN(x);
+  const pow10 = (n) => Math.pow(10, n);
+  function fmt(n, d=5){
+    if (!isNum(n)) return "—";
+    return n.toLocaleString(undefined, { maximumFractionDigits: d });
+  }
+  function roundStep(v, step){
+    if (!isNum(v) || !isNum(step) || step<=0) return v;
+    return Math.floor(v/step)*step;
+  }
 
-    function calc(){
-      const balance = parseFloat($("balance").value);
-      const riskIn = parseFloat($("risk").value);
-      const slPips = parseFloat($("slPips").value);
+  function setConn(ok){
+    $("connDot").className = "dot " + (ok ? "ok" : "bad");
+    $("connTxt").textContent = ok ? "Connected" : "Not connected";
+  }
 
-      const pipSize = parseFloat($("pipSize").value);
-      const contractSize = parseFloat($("contractSize").value);
-      const convRate = parseFloat($("convRate").value);
-      const volStep = parseFloat($("volStep").value);
+  function applyQueryParams(){
+    const qs = new URLSearchParams(location.search);
+    const sym = qs.get("symbol");
+    const theme = qs.get("theme");
+    if (theme === "light" || theme === "dark") document.body.dataset.theme = theme;
+    if (sym) $("symbol").value = sym;
+    $("barSymbol").textContent = sym || $("symbol").value || "—";
+    return sym || $("symbol").value;
+  }
 
-      const leverage = parseFloat($("leverage").value);
-      const marginRate = parseFloat($("marginRate").value);
-      const price = parseFloat($("price").value);
+  function setMode(mode){
+    riskMode = mode;
+    $("modePct").classList.toggle("active", mode==="pct");
+    $("modeAmt").classList.toggle("active", mode==="amt");
+    $("riskLabel").textContent = mode==="pct" ? "Risk (%)" : "Risk ($)";
+    if (mode==="amt" && ($("risk").value==="" || Number($("risk").value)===1)) $("risk").value = "25";
+    if (mode==="pct" && ($("risk").value==="" || Number($("risk").value)===25)) $("risk").value = "1";
+    calcAll();
+  }
 
-      if (![balance, riskIn, slPips, pipSize, contractSize, convRate, volStep].every(isFiniteNumber) || slPips <= 0 || pipSize <= 0 || contractSize <= 0 || convRate <= 0){
-        $("outLots").textContent = "—";
-        return;
-      }
+  function setDir(newDir){
+    dir = newDir;
+    $("dirBuy").classList.toggle("active", dir==="buy");
+    $("dirSell").classList.toggle("active", dir==="sell");
+    calcAll();
+  }
 
-      const riskAmount = (riskMode === "pct")
-        ? (balance * (riskIn / 100))
-        : riskIn;
+  function guessPipSize(meta, symbolName){
+    // Best effort: if pipPosition exists => pipSize = 10^(-pipPosition)
+    const pp = meta?.pipPosition;
+    if (isNum(pp)) return pow10(-pp);
+    // Fallback: JPY pairs
+    if ((symbolName||"").toUpperCase().includes("JPY")) return 0.01;
+    return 0.0001;
+  }
 
-      // pip value per 1 lot in account currency (best-effort)
-      const pipPerLotQuote = pipSize * contractSize;
-      const pipPerLotAcct = pipPerLotQuote * convRate;
+  function calcAll(){
+    const balance = parseFloat($("balance").value);
+    const riskIn = parseFloat($("risk").value);
+    const slPips = parseFloat($("slPips").value);
+    const rr = parseFloat($("rr").value);
 
-      const rawLots = riskAmount / (slPips * pipPerLotAcct);
-      const lots = roundToStep(rawLots, volStep);
-      const units = lots * contractSize;
-      const riskPerPip = riskAmount / slPips;
+    const pipSize = parseFloat($("pipSize").value);
+    const contractSize = parseFloat($("contractSize").value);
+    const convRate = parseFloat($("convRate").value);
+    const volStep = parseFloat($("volStep").value);
 
-      let margin = NaN;
-      if (isFiniteNumber(leverage) && leverage > 0 && isFiniteNumber(price) && price > 0 && isFiniteNumber(marginRate) && marginRate > 0){
-        margin = (units * price * marginRate) / leverage;
-      }
+    const entry = parseFloat($("entry").value);
 
-      $("outLots").textContent = fmt(lots, 2);
-      $("outUnits").textContent = fmt(units, 0);
-      $("outPipPerLot").textContent = fmt(pipPerLotAcct, 2);
-      $("outRiskPerPip").textContent = fmt(riskPerPip, 2);
-      $("outRisk").textContent = fmt(riskAmount, 2);
-      $("outMargin").textContent = isFiniteNumber(margin) ? fmt(margin, 2) : "—";
-    }
-
-    // ---------- read cTrader query string (symbol/theme/etc.) ----------
-    function applyQueryString(){
-      const qs = new URLSearchParams(location.search);
-
-      const theme = qs.get("theme");
-      const symbol = qs.get("symbol");
-      const placement = qs.get("placement");
-      const platform = qs.get("platform");
-
-      if (theme === "light" || theme === "dark") document.body.dataset.theme = theme;
-      $("qsSymbol").textContent = symbol || "—";
-      $("qsPlacement").textContent = placement || "—";
-      $("qsPlatform").textContent = platform || "—";
-
-      // symbol auto-fill: cTrader passes `symbol` depending on placement. :contentReference[oaicite:6]{index=6}
-      if (symbol) $("symbol").value = symbol;
-
-      calc();
-      return { theme, symbol, placement, platform };
+    if (![balance,riskIn,slPips,rr,pipSize,contractSize,convRate,volStep,entry].every(isNum) || slPips<=0 || rr<=0 || pipSize<=0 || contractSize<=0 || convRate<=0){
+      $("outLots").textContent="—";
+      return;
     }
 
-    // ---------- SDK auto-fill ----------
-    let adapter = null;
-    let currentSymbolId = null;
+    const riskAmt = (riskMode==="pct") ? (balance*(riskIn/100)) : riskIn;
 
-    function guessPipSizeFromSymbolMeta(meta, symbolName){
-      // Best-effort: different brokers may expose pip position.
-      // If meta.pipPosition exists => pipSize = 10^(-pipPosition)
-      if (isFiniteNumber(meta?.pipPosition)) return Math.pow(10, -meta.pipPosition);
+    // pip value per 1 lot in account ccy (simple model)
+    const pipPerLot = (pipSize*contractSize) * convRate;
 
-      // Fallback: JPY pairs typically 0.01, otherwise 0.0001
-      if ((symbolName || "").toUpperCase().includes("JPY")) return 0.01;
-      return 0.0001;
+    // lot size
+    const rawLots = riskAmt / (slPips * pipPerLot);
+    const lots = roundStep(rawLots, volStep);
+    const units = lots * contractSize;
+
+    // RR prices (use entry as the “current”/chosen entry)
+    const tpPips = slPips * rr;
+    const slMove = slPips * pipSize;
+    const tpMove = tpPips * pipSize;
+
+    let slPrice, tpPrice;
+    if (dir==="buy"){
+      slPrice = entry - slMove;
+      tpPrice = entry + tpMove;
+    }else{
+      slPrice = entry + slMove;
+      tpPrice = entry - tpMove;
     }
 
-    function setAccountAutofill(info){
-      // Field names can vary; we try common ones.
-      // If a field doesn't exist, we skip it (still works manually).
-      const ccy = info?.accountCurrency || info?.currency || info?.baseCurrency;
-      const bal = info?.balance ?? info?.Balance;
+    $("outLots").textContent = fmt(lots, 2);
+    $("outUnits").textContent = fmt(units, 0);
+    $("outPipPerLot").textContent = fmt(pipPerLot, 2);
+    $("outRisk").textContent = fmt(riskAmt, 2);
+    $("outSL").textContent = fmt(slPrice, 5);
+    $("outTP").textContent = fmt(tpPrice, 5);
+    $("outTPpips").textContent = fmt(tpPips, 1);
+    $("outRiskPerPip").textContent = fmt(riskAmt/slPips, 2);
+  }
 
-      if (ccy) $("acctCcy").value = String(ccy);
-      if (isFiniteNumber(bal)) $("balance").value = Number(bal);
-
-      calc();
+  function updateTopBarPrices(){
+    $("barBid").textContent = isNum(lastBid) ? fmt(lastBid, 5) : "—";
+    $("barAsk").textContent = isNum(lastAsk) ? fmt(lastAsk, 5) : "—";
+    if (isNum(lastBid) && isNum(lastAsk)){
+      const mid = (lastBid+lastAsk)/2;
+      $("barMid").textContent = fmt(mid, 5);
+      $("entry").value = mid; // <-- THIS fixes “RR not using current price”
+      const spr = (lastAsk-lastBid);
+      $("barSpr").textContent = fmt(spr, 5);
+      calcAll();
     }
+  }
 
-    async function sdkConnectAndAutofill(activeSymbolName){
-      // Create adapter + handshake (confirm/register). :contentReference[oaicite:7]{index=7}
-      const logger = createLogger(location.href.includes("showLogs"));
-      adapter = createClientAdapter({ logger });
+  // ----- SDK connect + autofill -----
+  async function connectSDKAndAutofill(symbolName){
+    const adapter = createClientAdapter({ logger: undefined });
 
-      setConnectedUI(false);
-
-      // confirm then register
-      handleConfirmEvent(adapter, {}).pipe(take(1)).subscribe();
-      await new Promise((resolve, reject) => {
-        registerEvent(adapter).pipe(
-          take(1),
-          tap(() => {
-            handleConfirmEvent(adapter, {}).pipe(take(1)).subscribe();
-            setConnectedUI(true);
-            resolve();
-          }),
-          catchError((e) => { reject(e); return []; })
-        ).subscribe();
-      });
-
-      // 1) Account info (balance + currency)
-      getAccountInformation(adapter, {}).pipe(take(1)).subscribe({
-        next: (res) => setAccountAutofill(res),
-        error: () => {}
-      });
-
-      // 2) Find symbolId for the active symbol name
-      const lightSymbols = await new Promise((resolve) => {
-        getLightSymbolList(adapter, {}).pipe(take(1)).subscribe({
-          next: resolve,
-          error: () => resolve(null)
-        });
-      });
-
-      const list = lightSymbols?.symbol ?? lightSymbols?.symbols ?? lightSymbols?.symbolList ?? [];
-      const wanted = (activeSymbolName || "").toUpperCase();
-
-      // Find by name (best-effort)
-      const hit = Array.isArray(list)
-        ? list.find(s => String(s?.name || s?.symbolName || "").toUpperCase() === wanted)
-        : null;
-
-      const symbolId = hit?.id ?? hit?.symbolId ?? null;
-      if (!symbolId){
-        // Still fine: user can fill manually
-        return;
-      }
-
-      currentSymbolId = symbolId;
-
-      // 3) Fetch detailed symbol info (contract size, step volume, pip size)
-      const sym = await new Promise((resolve) => {
-        getSymbol(adapter, { symbolId: [symbolId] }).pipe(take(1)).subscribe({
-          next: resolve,
-          error: () => resolve(null)
-        });
-      });
-
-      const meta = Array.isArray(sym?.symbol) ? sym.symbol[0] : (sym?.symbol || sym);
-      if (meta){
-        const lotSize = meta?.lotSize ?? meta?.lotSizeInUnits ?? meta?.contractSize;
-        const stepVol = meta?.stepVolume ?? meta?.minVolumeStep ?? meta?.volumeStep;
-
-        if (isFiniteNumber(lotSize)) $("contractSize").value = Number(lotSize);
-
-        // volume step in "lots"
-        if (isFiniteNumber(stepVol) && isFiniteNumber(lotSize) && lotSize > 0){
-          $("volStep").value = Number(stepVol) / Number(lotSize);
-        }
-
-        $("pipSize").value = guessPipSizeFromSymbolMeta(meta, wanted);
-
-        calc();
-      }
-
-      // 4) Live price (quotes)
-      subscribeQuotes(adapter, { symbolId: [symbolId] }).pipe(take(1)).subscribe({ next:()=>{}, error:()=>{} });
-
-      quoteEvent(adapter).subscribe({
-        next: (q) => {
-          // try common quote fields
-          const bid = q?.bid ?? q?.Bid;
-          const ask = q?.ask ?? q?.Ask;
-          if (isFiniteNumber(bid) && isFiniteNumber(ask)){
-            const mid = (Number(bid) + Number(ask)) / 2;
-            $("price").value = mid;
-            calc();
-          }
-        }
-      });
-    }
-
-    // ---------- events ----------
-    $("modePct").addEventListener("click", () => setRiskMode("pct"));
-    $("modeAmt").addEventListener("click", () => setRiskMode("amt"));
-
-    $("themeBtn").addEventListener("click", () => {
-      document.body.dataset.theme = (document.body.dataset.theme === "dark") ? "light" : "dark";
+    // handshake (confirm + register). :contentReference[oaicite:4]{index=4}
+    handleConfirmEvent(adapter, {}).pipe(take(1)).subscribe();
+    await new Promise((resolve) => {
+      registerEvent(adapter).pipe(
+        take(1),
+        tap(() => {
+          handleConfirmEvent(adapter, {}).pipe(take(1)).subscribe();
+          setConn(true);
+          resolve();
+        })
+      ).subscribe();
     });
 
-    $("copyBtn").addEventListener("click", async () => {
-      const txt = $("outLots").textContent;
-      if (!txt || txt === "—") return;
-      try{
-        await navigator.clipboard.writeText(txt);
-        $("copyBtn").textContent = "Copied!";
-        setTimeout(()=> $("copyBtn").textContent = "Copy lots", 900);
-      }catch(e){
-        alert("Copy failed (clipboard permission).");
-      }
+    // account info
+    getAccountInformation(adapter, {}).pipe(take(1)).subscribe({
+      next: (info) => {
+        const ccy = info?.accountCurrency || info?.currency || info?.baseCurrency;
+        const bal = info?.balance ?? info?.Balance;
+        if (ccy) $("acctCcy").value = String(ccy);
+        if (isNum(bal)) $("balance").value = Number(bal);
+        calcAll();
+      },
+      error: () => {}
     });
 
-    ["balance","risk","slPips","pipSize","contractSize","convRate","volStep","leverage","marginRate","price","symbol","acctCcy"]
-      .forEach(id => $(id).addEventListener("input", calc));
+    // resolve symbolId from light symbol list
+    const light = await new Promise((resolve) => {
+      getLightSymbolList(adapter, {}).pipe(take(1)).subscribe({ next: resolve, error: () => resolve(null) });
+    });
+    const list = light?.symbol ?? light?.symbols ?? light?.symbolList ?? [];
+    const wanted = (symbolName||"").toUpperCase();
 
-    // ---------- boot ----------
-    const { symbol } = applyQueryString();
+    const hit = Array.isArray(list)
+      ? list.find(s => String(s?.name || s?.symbolName || "").toUpperCase() === wanted)
+      : null;
 
-    // Try auto-fill if running inside cTrader
-    // If you open in normal browser (GitHub Pages), it still works manually.
-    try{
-      await sdkConnectAndAutofill(symbol || $("symbol").value);
-    }catch(e){
-      setConnectedUI(false);
-      // still usable
+    currentSymbolId = hit?.id ?? hit?.symbolId ?? null;
+    if (!currentSymbolId) return;
+
+    // symbol details (contract size, step volume, pip size best-effort)
+    const sym = await new Promise((resolve) => {
+      getSymbol(adapter, { symbolId: [currentSymbolId] }).pipe(take(1)).subscribe({ next: resolve, error: () => resolve(null) });
+    });
+    const meta = Array.isArray(sym?.symbol) ? sym.symbol[0] : (sym?.symbol || sym);
+
+    if (meta){
+      const lotSize = meta?.lotSize ?? meta?.lotSizeInUnits ?? meta?.contractSize;
+      const stepVol = meta?.stepVolume ?? meta?.minVolumeStep ?? meta?.volumeStep;
+      if (isNum(lotSize)) $("contractSize").value = Number(lotSize);
+      if (isNum(stepVol) && isNum(lotSize) && lotSize>0) $("volStep").value = Number(stepVol)/Number(lotSize);
+      $("pipSize").value = guessPipSize(meta, wanted);
+      calcAll();
     }
 
-    calc();
-  </script>
+    // subscribe quotes and update entry from live mid
+    subscribeQuotes(adapter, { symbolId: [currentSymbolId] }).pipe(take(1)).subscribe({ next:()=>{}, error:()=>{} });
+
+    quoteEvent(adapter).subscribe({
+      next: (q) => {
+        // Quote payload shape may vary; handle common possibilities safely:
+        const sid = q?.symbolId ?? q?.SymbolId ?? q?.symbol?.id ?? q?.symbol?.symbolId;
+        if (isNum(sid) && isNum(currentSymbolId) && Number(sid) !== Number(currentSymbolId)) return;
+
+        const bid = q?.bid ?? q?.Bid ?? q?.priceBid ?? q?.bidPrice;
+        const ask = q?.ask ?? q?.Ask ?? q?.priceAsk ?? q?.askPrice;
+
+        if (isNum(bid)) lastBid = Number(bid);
+        if (isNum(ask)) lastAsk = Number(ask);
+
+        updateTopBarPrices();
+      }
+    });
+  }
+
+  // ----- UI events -----
+  $("themeBtn").addEventListener("click", ()=> {
+    document.body.dataset.theme = (document.body.dataset.theme==="dark") ? "light" : "dark";
+  });
+  $("copyBtn").addEventListener("click", async ()=> {
+    const txt = $("outLots").textContent;
+    if (!txt || txt==="—") return;
+    try{ await navigator.clipboard.writeText(txt); $("copyBtn").textContent="Copied!"; setTimeout(()=> $("copyBtn").textContent="Copy lots", 900); }catch{}
+  });
+
+  $("modePct").addEventListener("click", ()=> setMode("pct"));
+  $("modeAmt").addEventListener("click", ()=> setMode("amt"));
+  $("dirBuy").addEventListener("click", ()=> setDir("buy"));
+  $("dirSell").addEventListener("click", ()=> setDir("sell"));
+
+  ["symbol","balance","acctCcy","risk","slPips","rr","entry","pipSize","contractSize","volStep","convRate"]
+    .forEach(id => $(id).addEventListener("input", calcAll));
+
+  // ----- boot -----
+  const sym = applyQueryParams();
+  calcAll();
+
+  // Try SDK only in cTrader host (in normal browser it will just stay manual)
+  try{
+    await connectSDKAndAutofill(sym);
+  }catch(e){
+    setConn(false);
+  }
+</script>
 </body>
 </html>
