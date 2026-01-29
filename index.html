@@ -3,27 +3,29 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Quant Terminal • Lot + RR</title>
+<title>Quant Terminal • Lot/RR</title>
 <style>
   :root{
-    --bg:#050713;
-    --panel: rgba(255,255,255,.06);
+    --bg:#03060f;
+    --panel: rgba(0,0,0,.38);
     --panel2: rgba(255,255,255,.03);
-    --stroke: rgba(255,255,255,.12);
-    --text:#eaf0ff;
-    --muted:#93a4cc;
+    --stroke: rgba(255,255,255,.10);
 
-    --c1:#22d3ee;     /* cyan */
-    --c2:#a78bfa;     /* purple */
-    --c3:#34d399;     /* green */
-    --c4:#fb7185;     /* red */
+    --text:#dfe7ff;
+    --muted:#8ea0cc;
 
-    --r:18px;
-    --sh: 0 22px 70px rgba(0,0,0,.55);
+    --g:#00ff84;          /* terminal green */
+    --r:#ff3b5c;          /* terminal red */
+    --c:#22d3ee;          /* cyan */
+    --p:#a78bfa;          /* purple */
+
+    --sh: 0 22px 70px rgba(0,0,0,.62);
+    --rad: 18px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
   [data-theme="light"]{
-    --bg:#f6f7ff;
+    --bg:#f5f7ff;
     --panel:#ffffff;
     --panel2:#ffffff;
     --stroke: rgba(11,18,32,.10);
@@ -35,20 +37,20 @@
   *{box-sizing:border-box}
   body{
     margin:0;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    font-family: var(--mono);
     color:var(--text);
     background:
-      radial-gradient(1200px 700px at 15% 0%, rgba(34,211,238,.12), transparent 55%),
-      radial-gradient(900px 600px at 85% 10%, rgba(167,139,250,.12), transparent 55%),
-      radial-gradient(900px 600px at 50% 90%, rgba(52,211,153,.10), transparent 55%),
+      radial-gradient(1000px 600px at 15% 0%, rgba(0,255,132,.10), transparent 55%),
+      radial-gradient(900px 600px at 85% 10%, rgba(255,59,92,.10), transparent 55%),
+      radial-gradient(900px 600px at 55% 90%, rgba(34,211,238,.10), transparent 55%),
       var(--bg);
   }
 
-  .wrap{max-width:1020px;margin:14px auto;padding:12px;}
+  .wrap{max-width:1050px;margin:12px auto;padding:10px;}
 
   .shell{
     border:1px solid var(--stroke);
-    border-radius:24px;
+    border-radius:22px;
     background: linear-gradient(180deg,var(--panel),var(--panel2));
     box-shadow: var(--sh);
     overflow:hidden;
@@ -57,131 +59,170 @@
   .shell:before{
     content:"";
     position:absolute; inset:-2px;
-    background: linear-gradient(135deg, rgba(34,211,238,.20), rgba(167,139,250,.16), rgba(52,211,153,.14));
+    background: linear-gradient(135deg, rgba(0,255,132,.14), rgba(34,211,238,.12), rgba(255,59,92,.12), rgba(167,139,250,.10));
     filter: blur(18px);
     opacity:.65;
     z-index:0;
   }
   .shell > *{position:relative; z-index:1;}
 
-  /* Top bar */
+  /* Top */
   .top{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:12px 14px;
+    padding:10px 12px;
     border-bottom:1px solid rgba(255,255,255,.08);
-    backdrop-filter: blur(10px);
   }
-  .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+  .brand{display:flex; align-items:center; gap:10px; min-width:0;}
   .mark{
-    width:40px;height:40px;border-radius:16px;
-    background: linear-gradient(135deg, rgba(34,211,238,.85), rgba(167,139,250,.85));
-    box-shadow: 0 18px 50px rgba(34,211,238,.18);
+    width:34px;height:34px;border-radius:14px;
+    background: linear-gradient(135deg, rgba(0,255,132,.85), rgba(34,211,238,.85));
+    box-shadow: 0 18px 40px rgba(0,255,132,.15);
   }
-  .title{font-weight:950; font-size:14px; letter-spacing:.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .subtitle{font-size:11px; color:var(--muted); margin-top:2px;}
+  .title{font-weight:900; font-size:12px; letter-spacing:.8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .subtitle{font-size:10px; color:var(--muted); margin-top:2px; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;}
 
-  .actions{display:flex;gap:8px;align-items:center;}
+  .actions{display:flex; gap:8px; align-items:center;}
   .btn{
     border:1px solid var(--stroke);
     background: rgba(255,255,255,.06);
     color:var(--text);
-    padding:9px 11px;
+    padding:8px 10px;
     border-radius:14px;
     cursor:pointer;
-    font-size:12px;
+    font-size:11px;
     transition:.15s transform,.15s opacity;
     user-select:none;
   }
   .btn:hover{transform: translateY(-1px); opacity:.96;}
 
-  /* Stat strip */
-  .strip{
+  /* Terminal board */
+  .board{
     display:grid;
-    grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr;
-    gap:10px;
-    padding:12px 14px;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr;
+    gap:8px;
+    padding:10px 12px;
     border-bottom:1px solid rgba(255,255,255,.08);
   }
-  @media(max-width:920px){
-    .strip{grid-template-columns:1fr 1fr; }
+  @media(max-width:980px){
+    .board{grid-template-columns:1fr 1fr 1fr;}
   }
-  .stat{
+  @media(max-width:620px){
+    .board{grid-template-columns:1fr 1fr;}
+  }
+
+  .tile{
     border:1px solid rgba(255,255,255,.10);
     background: rgba(255,255,255,.03);
-    border-radius:18px;
-    padding:10px 12px;
+    border-radius:16px;
+    padding:10px 10px;
     overflow:hidden;
+    position:relative;
   }
-  .stat.primary{
-    background: linear-gradient(135deg, rgba(34,211,238,.12), rgba(167,139,250,.10));
+  .tile:after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+    pointer-events:none;
+    opacity:.55;
   }
-  .k{font-size:11px;color:var(--muted); display:flex; align-items:center; justify-content:space-between; gap:10px;}
-  .v{font-size:15px;font-weight:950;margin-top:6px;}
-  .mini{font-size:11px;color:var(--muted);margin-top:4px;}
-  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+  .tile.primary{
+    background: linear-gradient(135deg, rgba(34,211,238,.10), rgba(167,139,250,.08));
+  }
+
+  .k{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:.4px;
+  }
+  .v{
+    font-size:13px;
+    font-weight:900;
+    margin-top:6px;
+    letter-spacing:.4px;
+  }
+  .mini{font-size:10px; color:var(--muted); margin-top:4px;}
+
+  .greenBox{
+    background: rgba(0,255,132,.08);
+    border-color: rgba(0,255,132,.22);
+  }
+  .redBox{
+    background: rgba(255,59,92,.08);
+    border-color: rgba(255,59,92,.22);
+  }
 
   .dot{
-    width:8px;height:8px;border-radius:999px; background:var(--muted);
+    width:8px;height:8px;border-radius:999px;
+    background: var(--muted);
     box-shadow: 0 0 0 3px rgba(255,255,255,.06);
   }
-  .dot.ok{background:var(--c3);}
-  .dot.bad{background:var(--c4);}
+  .dot.ok{background:var(--g);}
+  .dot.bad{background:var(--r);}
 
-  /* Main grid (compact) */
+  /* Main compact */
   .grid{
     display:grid;
     grid-template-columns: 1.05fr .95fr;
-    gap:12px;
-    padding:12px 14px 14px;
+    gap:10px;
+    padding:10px 12px 12px;
   }
   @media(max-width:900px){ .grid{grid-template-columns:1fr;} }
 
   .card{
     border:1px solid rgba(255,255,255,.10);
     background: rgba(255,255,255,.03);
-    border-radius:20px;
-    padding:12px;
+    border-radius:18px;
+    padding:10px;
   }
 
-  .row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
   @media(max-width:520px){ .row{grid-template-columns:1fr;} }
 
-  label{display:block;font-size:11px;color:var(--muted); margin:8px 0 6px;}
+  label{
+    display:block;
+    font-size:10px;
+    color:var(--muted);
+    margin:7px 0 5px;
+    letter-spacing:.4px;
+  }
+
   input,select{
     width:100%;
-    padding:10px 10px;
+    padding:9px 9px;
     border-radius:14px;
     border:1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.16);
+    background: rgba(0,0,0,.18);
     color:var(--text);
     outline:none;
-    font-size:13px;
+    font-size:12px;
   }
   [data-theme="light"] input,[data-theme="light"] select{background:rgba(11,18,32,.03);}
 
   input:focus,select:focus{
-    border-color: rgba(34,211,238,.45);
+    border-color: rgba(34,211,238,.40);
     box-shadow: 0 0 0 3px rgba(34,211,238,.10);
   }
 
   .seg{
     display:flex; gap:8px;
-    padding:6px;
+    padding:5px;
     border-radius:16px;
     border:1px solid rgba(255,255,255,.10);
     background: rgba(255,255,255,.03);
   }
   .seg button{
-    flex:1; padding:9px 10px;
+    flex:1;
+    padding:8px 8px;
     border-radius:14px;
     border:1px solid transparent;
     background: transparent;
     color: var(--muted);
     cursor:pointer;
-    font-size:12px;
+    font-size:11px;
   }
   .seg button.active{
-    background: linear-gradient(135deg, rgba(34,211,238,.18), rgba(167,139,250,.16));
+    background: linear-gradient(135deg, rgba(34,211,238,.16), rgba(167,139,250,.14));
     border-color: rgba(255,255,255,.10);
     color: var(--text);
   }
@@ -189,25 +230,25 @@
   .kpis{
     display:grid;
     grid-template-columns: 1fr 1fr;
-    gap:10px;
+    gap:8px;
   }
   .kpi{
     border:1px solid rgba(255,255,255,.10);
     background: rgba(255,255,255,.03);
-    border-radius:18px;
-    padding:12px;
+    border-radius:16px;
+    padding:10px;
   }
   .kpi.big{
-    grid-column:1 / -1;
-    background: linear-gradient(135deg, rgba(52,211,153,.10), rgba(34,211,238,.10));
+    grid-column:1/-1;
+    background: linear-gradient(135deg, rgba(0,255,132,.08), rgba(34,211,238,.08));
   }
-  .kpi .t{font-size:11px;color:var(--muted);}
-  .kpi .val{font-size:18px;font-weight:950;margin-top:6px;}
-  .kpi .s{font-size:11px;color:var(--muted);margin-top:4px;}
+  .kpi .t{font-size:10px;color:var(--muted);letter-spacing:.4px;}
+  .kpi .val{font-size:14px;font-weight:950;margin-top:6px;}
+  .kpi .s{font-size:10px;color:var(--muted);margin-top:4px;}
 
   .warn{
-    border-color: rgba(251,113,133,.35) !important;
-    box-shadow: 0 0 0 3px rgba(251,113,133,.10);
+    border-color: rgba(255,59,92,.35) !important;
+    box-shadow: 0 0 0 3px rgba(255,59,92,.10);
   }
 </style>
 </head>
@@ -219,61 +260,67 @@
       <div class="brand">
         <div class="mark"></div>
         <div style="min-width:0">
-          <div class="title">QUANT TERMINAL • Lot Size + RR</div>
-          <div class="subtitle">Symbol auto-fill • Live mid-entry • Compact stats</div>
+          <div class="title">QUANT TERMINAL • LOT/RR • AUTO MID ENTRY</div>
+          <div class="subtitle">Green/Red terminal blocks • compact • profit & risk shown</div>
         </div>
       </div>
       <div class="actions">
-        <button class="btn" id="themeBtn">Theme</button>
-        <button class="btn" id="copyBtn">Copy lots</button>
+        <button class="btn" id="themeBtn">THEME</button>
+        <button class="btn" id="copyBtn">COPY LOTS</button>
       </div>
     </div>
 
-    <div class="strip">
-      <div class="stat primary">
+    <div class="board">
+      <div class="tile primary">
         <div class="k">
-          <span><span id="connDot" class="dot bad"></span> <span id="connTxt">Not connected</span></span>
+          <span><span id="connDot" class="dot bad"></span> <span id="connTxt">NOT CONNECTED</span></span>
           <span class="mono" id="barPlatform">—</span>
         </div>
         <div class="v mono" id="barSymbol">—</div>
-        <div class="mini">theme: <span class="mono" id="barTheme">—</span> • placement: <span class="mono" id="barPlacement">—</span></div>
+        <div class="mini">theme <span class="mono" id="barTheme">—</span> • placement <span class="mono" id="barPlacement">—</span></div>
       </div>
 
-      <div class="stat">
-        <div class="k">BID <span class="mono">tick</span></div>
+      <div class="tile">
+        <div class="k">BID</div>
         <div class="v mono" id="barBid">—</div>
-        <div class="mini">ASK <span class="mono" id="barAskMini">—</span></div>
+        <div class="mini">ASK <span class="mono" id="barAsk">—</span></div>
       </div>
 
-      <div class="stat">
-        <div class="k">MID <span class="mono">entry</span></div>
+      <div class="tile">
+        <div class="k">MID (ENTRY)</div>
         <div class="v mono" id="barMid">—</div>
-        <div class="mini">spread <span class="mono" id="barSpr">—</span></div>
+        <div class="mini">SPREAD <span class="mono" id="barSpr">—</span></div>
       </div>
 
-      <div class="stat">
-        <div class="k">RISK <span class="mono">mode</span></div>
+      <div class="tile greenBox">
+        <div class="k">PROFIT @ TP</div>
+        <div class="v mono" id="barProfit">—</div>
+        <div class="mini">TP pips <span class="mono" id="barTPp">—</span></div>
+      </div>
+
+      <div class="tile redBox">
+        <div class="k">RISK $</div>
         <div class="v mono" id="barRisk">—</div>
         <div class="mini">risk/pip <span class="mono" id="barRpp">—</span></div>
       </div>
 
-      <div class="stat">
-        <div class="k">RR <span class="mono">TP:SL</span></div>
+      <div class="tile">
+        <div class="k">RR</div>
         <div class="v mono" id="barRR">—</div>
-        <div class="mini">TP pips <span class="mono" id="barTPp">—</span></div>
+        <div class="mini">dir <span class="mono" id="barDir">BUY</span></div>
       </div>
     </div>
 
     <div class="grid">
-      <!-- Inputs (compact) -->
+      <!-- Inputs -->
       <div class="card">
         <div class="row">
           <div>
-            <label>Symbol (auto)</label>
+            <label>SYMBOL</label>
             <input id="symbol" value="EURUSD" />
           </div>
           <div>
-            <label>Direction</label>
+            <label>DIRECTION</label>
             <div class="seg">
               <button id="dirBuy" class="active" type="button">BUY</button>
               <button id="dirSell" type="button">SELL</button>
@@ -283,115 +330,127 @@
 
         <div class="row">
           <div>
-            <label>Balance</label>
+            <label>BALANCE</label>
             <input id="balance" type="number" step="0.01" value="10000" />
           </div>
           <div>
-            <label>Account currency</label>
+            <label>ACCOUNT CCY</label>
             <input id="acctCcy" value="USD" />
           </div>
         </div>
 
-        <label>Risk mode</label>
+        <label>RISK MODE</label>
         <div class="seg">
-          <button id="modePct" class="active" type="button">Risk %</button>
-          <button id="modeAmt" type="button">Risk $</button>
+          <button id="modePct" class="active" type="button">RISK %</button>
+          <button id="modeAmt" type="button">RISK $</button>
         </div>
 
         <div class="row">
           <div>
-            <label id="riskLabel">Risk (%)</label>
+            <label id="riskLabel">RISK (%)</label>
             <input id="risk" type="number" step="0.01" value="1" />
           </div>
           <div>
-            <label>Stop-loss (pips)</label>
+            <label>SL (PIPS)</label>
             <input id="slPips" type="number" step="0.1" value="20" />
           </div>
         </div>
 
         <div class="row">
           <div>
-            <label>RR ratio</label>
+            <label>RR RATIO</label>
             <input id="rr" type="number" step="0.1" value="2" />
           </div>
           <div>
-            <label>Entry (auto mid)</label>
+            <label>ENTRY (AUTO MID)</label>
             <input id="entry" type="number" step="0.00001" value="1.08000" />
           </div>
         </div>
 
         <div class="row">
           <div>
-            <label>Pip size</label>
+            <label>PIP SIZE</label>
             <input id="pipSize" type="number" step="0.00001" value="0.0001" />
           </div>
           <div>
-            <label>Contract size (units/lot)</label>
+            <label>CONTRACT (UNITS/LOT)</label>
             <input id="contractSize" type="number" step="1" value="100000" />
           </div>
         </div>
 
         <div class="row">
           <div>
-            <label>Volume step (lots)</label>
+            <label>VOLUME STEP (LOTS)</label>
             <input id="volStep" type="number" step="0.01" value="0.01" />
           </div>
           <div>
-            <label>Conversion rate → account</label>
+            <label>CONV RATE → ACCOUNT</label>
             <input id="convRate" type="number" step="0.0001" value="1" />
           </div>
         </div>
       </div>
 
-      <!-- Outputs (stats) -->
+      <!-- Outputs -->
       <div class="card">
         <div class="kpis">
           <div class="kpi big">
-            <div class="t">Recommended lots</div>
+            <div class="t">RECOMMENDED LOTS</div>
             <div class="val mono" id="outLots">—</div>
             <div class="s">rounded to volume step</div>
           </div>
 
           <div class="kpi">
-            <div class="t">SL price</div>
-            <div class="val mono" id="outSL">—</div>
-            <div class="s">based on entry + SL pips</div>
-          </div>
-
-          <div class="kpi">
-            <div class="t">TP price</div>
-            <div class="val mono" id="outTP">—</div>
-            <div class="s">based on RR</div>
-          </div>
-
-          <div class="kpi">
-            <div class="t">Units</div>
-            <div class="val mono" id="outUnits">—</div>
-            <div class="s">contract × lots</div>
-          </div>
-
-          <div class="kpi">
-            <div class="t">Pip value / 1 lot</div>
-            <div class="val mono" id="outPipPerLot">—</div>
-            <div class="s">× conversion rate</div>
-          </div>
-
-          <div class="kpi">
-            <div class="t">Total risk</div>
+            <div class="t">MONEY AT RISK</div>
             <div class="val mono" id="outRisk">—</div>
             <div class="s" id="outRiskMode">—</div>
           </div>
 
           <div class="kpi">
-            <div class="t">Risk per pip</div>
+            <div class="t">PROFIT @ TP</div>
+            <div class="val mono" id="outProfit">—</div>
+            <div class="s">risk × RR (approx)</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">SL PRICE</div>
+            <div class="val mono" id="outSL">—</div>
+            <div class="s">entry ± SL move</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">TP PRICE</div>
+            <div class="val mono" id="outTP">—</div>
+            <div class="s">entry ± TP move</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">PIP VALUE / 1 LOT</div>
+            <div class="val mono" id="outPipPerLot">—</div>
+            <div class="s">pipSize × contract × conv</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">RISK / PIP</div>
             <div class="val mono" id="outRpp">—</div>
             <div class="s">risk / SL pips</div>
           </div>
 
           <div class="kpi">
-            <div class="t">TP pips</div>
+            <div class="t">TP PIPS</div>
             <div class="val mono" id="outTPpips">—</div>
-            <div class="s">SL pips × RR</div>
+            <div class="s">SL × RR</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">UNITS</div>
+            <div class="val mono" id="outUnits">—</div>
+            <div class="s">contract × lots</div>
+          </div>
+
+          <div class="kpi">
+            <div class="t">SPREAD COST (approx)</div>
+            <div class="val mono" id="outSpreadCost">—</div>
+            <div class="s">spread pips × pipValue × lots</div>
           </div>
         </div>
       </div>
@@ -401,7 +460,6 @@
 </div>
 
 <script type="module">
-  // CDN imports. If cTrader updates, change versions here only.
   import { createClientAdapter } from "https://esm.sh/@spotware-web-team/sdk-external-api@0.0.5";
   import {
     handleConfirmEvent,
@@ -422,7 +480,11 @@
   let currentSymbolId = null;
   let lastBid = null, lastAsk = null;
 
-  function fmt(n, d=5){
+  function fmt(n, d=2){
+    if (!isNum(n)) return "—";
+    return n.toLocaleString(undefined, { maximumFractionDigits: d });
+  }
+  function fmtPx(n, d=5){
     if (!isNum(n)) return "—";
     return n.toLocaleString(undefined, { maximumFractionDigits: d });
   }
@@ -430,9 +492,10 @@
     if (!isNum(v) || !isNum(step) || step <= 0) return v;
     return Math.floor(v/step) * step;
   }
+
   function setConn(ok){
     $("connDot").className = "dot " + (ok ? "ok" : "bad");
-    $("connTxt").textContent = ok ? "Connected" : "Not connected";
+    $("connTxt").textContent = ok ? "CONNECTED" : "NOT CONNECTED";
   }
 
   function applyQueryParams(){
@@ -457,7 +520,7 @@
     riskMode = mode;
     $("modePct").classList.toggle("active", mode==="pct");
     $("modeAmt").classList.toggle("active", mode==="amt");
-    $("riskLabel").textContent = mode==="pct" ? "Risk (%)" : "Risk ($)";
+    $("riskLabel").textContent = mode==="pct" ? "RISK (%)" : "RISK ($)";
     $("outRiskMode").textContent = mode==="pct" ? "balance × risk%" : "fixed amount";
     if (mode==="amt" && ($("risk").value==="" || Number($("risk").value)===1)) $("risk").value = "25";
     if (mode==="pct" && ($("risk").value==="" || Number($("risk").value)===25)) $("risk").value = "1";
@@ -468,6 +531,7 @@
     dir = newDir;
     $("dirBuy").classList.toggle("active", dir==="buy");
     $("dirSell").classList.toggle("active", dir==="sell");
+    $("barDir").textContent = dir.toUpperCase();
     calcAll();
   }
 
@@ -479,22 +543,22 @@
   }
 
   function updateQuoteBar(){
-    $("barBid").textContent = isNum(lastBid) ? fmt(lastBid, 5) : "—";
-    $("barAskMini").textContent = isNum(lastAsk) ? fmt(lastAsk, 5) : "—";
+    const bidOk = isNum(lastBid), askOk = isNum(lastAsk);
+    $("barBid").textContent = bidOk ? fmtPx(lastBid, 5) : "—";
+    $("barAsk").textContent = askOk ? fmtPx(lastAsk, 5) : "—";
 
-    if (isNum(lastBid) && isNum(lastAsk)){
+    if (bidOk && askOk){
       const mid = (lastBid + lastAsk) / 2;
-      $("barMid").textContent = fmt(mid, 5);
-      $("barAsk").textContent = fmt(lastAsk, 5);
-      $("barSpr").textContent = fmt(lastAsk - lastBid, 5);
+      const spr = (lastAsk - lastBid);
+      $("barMid").textContent = fmtPx(mid, 5);
+      $("barSpr").textContent = fmtPx(spr, 5);
 
-      // Critical fix: RR uses CURRENT price
+      // critical: keep entry synced to live mid
       $("entry").value = mid;
 
       calcAll();
     }else{
       $("barMid").textContent = "—";
-      $("barAsk").textContent = "—";
       $("barSpr").textContent = "—";
     }
   }
@@ -512,9 +576,10 @@
 
     const entry = parseFloat($("entry").value);
 
-    // simple validation + compact “red” highlight
-    const bad = ![balance,riskIn,slPips,rr,pipSize,contractSize,convRate,volStep,entry].every(isNum) || slPips<=0 || rr<=0 || pipSize<=0 || contractSize<=0 || convRate<=0;
-    $("slPips").classList.toggle("warn", isNum(slPips) && slPips < 3); // too small SL highlight
+    $("slPips").classList.toggle("warn", isNum(slPips) && slPips < 3);
+
+    const bad = ![balance,riskIn,slPips,rr,pipSize,contractSize,convRate,volStep,entry].every(isNum) ||
+                slPips<=0 || rr<=0 || pipSize<=0 || contractSize<=0 || convRate<=0;
 
     if (bad){
       $("outLots").textContent = "—";
@@ -523,13 +588,15 @@
 
     const riskAmt = (riskMode==="pct") ? (balance*(riskIn/100)) : riskIn;
 
-    // pip value per 1 lot (simple)
+    // pip value per 1 lot in account currency (simple model)
     const pipPerLot = (pipSize * contractSize) * convRate;
 
+    // lots
     const rawLots = riskAmt / (slPips * pipPerLot);
     const lots = roundStep(rawLots, volStep);
     const units = lots * contractSize;
 
+    // TP pips and prices
     const tpPips = slPips * rr;
     const slMove = slPips * pipSize;
     const tpMove = tpPips * pipSize;
@@ -543,29 +610,40 @@
       tpPrice = entry - tpMove;
     }
 
+    // Profit estimate (RR-based): profit ≈ risk × RR
+    const profitAtTp = riskAmt * rr;
+
+    // Spread cost approximation (in account currency)
+    let spreadCost = NaN;
+    if (isNum(lastBid) && isNum(lastAsk)){
+      const spreadPrice = (lastAsk - lastBid);
+      const spreadPips = spreadPrice / pipSize;
+      spreadCost = spreadPips * pipPerLot * lots;
+    }
+
     // outputs
     $("outLots").textContent = fmt(lots, 2);
     $("outUnits").textContent = fmt(units, 0);
     $("outPipPerLot").textContent = fmt(pipPerLot, 2);
     $("outRisk").textContent = fmt(riskAmt, 2);
     $("outRpp").textContent = fmt(riskAmt/slPips, 2);
-    $("outSL").textContent = fmt(slPrice, 5);
-    $("outTP").textContent = fmt(tpPrice, 5);
+    $("outSL").textContent = fmtPx(slPrice, 5);
+    $("outTP").textContent = fmtPx(tpPrice, 5);
     $("outTPpips").textContent = fmt(tpPips, 1);
+    $("outProfit").textContent = fmt(profitAtTp, 2);
+    $("outSpreadCost").textContent = isNum(spreadCost) ? fmt(spreadCost, 2) : "—";
 
-    // top “terminal stats”
-    $("barRisk").textContent = (riskMode==="pct")
-      ? `${fmt(riskIn,2)}% → ${fmt(riskAmt,2)}`
-      : `$${fmt(riskAmt,2)}`;
+    // board stats
+    $("barRisk").textContent = (riskMode==="pct") ? `${fmt(riskAmt,2)}` : `${fmt(riskAmt,2)}`;
     $("barRpp").textContent = fmt(riskAmt/slPips, 2);
     $("barRR").textContent = fmt(rr, 2);
     $("barTPp").textContent = fmt(tpPips, 1);
+    $("barProfit").textContent = fmt(profitAtTp, 2);
   }
 
   async function connectSDKAndAutofill(symbolName){
     const adapter = createClientAdapter({ logger: undefined });
 
-    // handshake
     handleConfirmEvent(adapter, {}).pipe(take(1)).subscribe();
     await new Promise((resolve) => {
       registerEvent(adapter).pipe(
@@ -578,7 +656,6 @@
       ).subscribe();
     });
 
-    // account info
     getAccountInformation(adapter, {}).pipe(take(1)).subscribe({
       next: (info) => {
         const ccy = info?.accountCurrency || info?.currency || info?.baseCurrency;
@@ -590,7 +667,6 @@
       error: () => {}
     });
 
-    // resolve symbolId
     const light = await new Promise((resolve) => {
       getLightSymbolList(adapter, {}).pipe(take(1)).subscribe({ next: resolve, error: () => resolve(null) });
     });
@@ -605,7 +681,6 @@
     currentSymbolId = hit?.id ?? hit?.symbolId ?? null;
     if (!currentSymbolId) return;
 
-    // symbol details
     const sym = await new Promise((resolve) => {
       getSymbol(adapter, { symbolId: [currentSymbolId] }).pipe(take(1)).subscribe({ next: resolve, error: () => resolve(null) });
     });
@@ -614,14 +689,12 @@
     if (meta){
       const lotSize = meta?.lotSize ?? meta?.lotSizeInUnits ?? meta?.contractSize;
       const stepVol = meta?.stepVolume ?? meta?.minVolumeStep ?? meta?.volumeStep;
-
       if (isNum(lotSize)) $("contractSize").value = Number(lotSize);
       if (isNum(stepVol) && isNum(lotSize) && lotSize>0) $("volStep").value = Number(stepVol) / Number(lotSize);
       $("pipSize").value = guessPipSize(meta, wanted);
       calcAll();
     }
 
-    // quotes
     subscribeQuotes(adapter, { symbolId: [currentSymbolId] }).pipe(take(1)).subscribe({ next:()=>{}, error:()=>{} });
 
     quoteEvent(adapter).subscribe({
@@ -650,8 +723,8 @@
     if (!txt || txt==="—") return;
     try{
       await navigator.clipboard.writeText(txt);
-      $("copyBtn").textContent="Copied!";
-      setTimeout(()=> $("copyBtn").textContent="Copy lots", 900);
+      $("copyBtn").textContent="COPIED";
+      setTimeout(()=> $("copyBtn").textContent="COPY LOTS", 900);
     }catch{}
   });
 
@@ -666,6 +739,7 @@
   // boot
   const sym = applyQueryParams();
   setMode("pct");
+  setDir("buy");
   calcAll();
 
   try{ await connectSDKAndAutofill(sym); } catch(e){ setConn(false); }
